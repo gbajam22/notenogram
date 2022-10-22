@@ -4,6 +4,7 @@
 #include <bn_array.h>
 #include <bn_fixed_point.h>
 #include "bn_keypad.h"
+#include "bn_vector.h"
 
 #include "bn_regular_bg_ptr.h"
 #include "bn_regular_bg_map_ptr.h"
@@ -12,13 +13,37 @@
 class PicrossGrid
 {
 private:
-    static bn::array<bn::array<int, 12>, 12> grid;
-    static bn::fixed_point cursor;
+    bn::array<bn::array<bool, 12>, 12> grid;
+
+    bn::array<int, 2> cursor_position;
+    static constexpr int screen_cell_upper_limit = 24;
+    static constexpr int screen_cell_lower_limit = 13;
+
+    bool creator_mode = false;
+
 public:
+    bn::vector<int, 6*12> grid_hints_up;
+    bn::vector<int, 6*12> grid_hints_left;
+
     PicrossGrid();
-    void processKeyInput();
+
+    int cellX2Screen();
+    int cellY2Screen();
+
+    int getCursorX();
+    int getCursorY();
+
+    bool processKeyInput(bn::regular_bg_map_cell&);
+    bool processDPadInput();
+
+    void outputHints();
+    void updateHints();
+
     bool checkSolution();
     void solve();
+    void create();
+
+    void resetGrid();
     ~PicrossGrid();
 };
 
