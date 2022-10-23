@@ -10,11 +10,11 @@ PicrossGrid::PicrossGrid()
         for (int j = 0; j < 12; ++j)
         {
             grid[j][i] = false;
-        }
-        for (int j = 0; j < 6; ++j)
-        {
-            grid_hints_left.push_back(0);
-            grid_hints_up.push_back(0);
+            if (j < 6)
+            {
+                grid_hints_left.push_back(0);
+                grid_hints_up.push_back(0);
+            }
         }
     }
 }
@@ -67,6 +67,7 @@ bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
         if (current_index == 1 || current_index == 3)
         {
             new_index = 2;
+            grid[cursor_position[0]-screen_cell_lower_limit][cursor_position[1]-screen_cell_lower_limit] = false;
         }
         info.set_tile_index(new_index);
         cell = info.cell();
@@ -173,26 +174,26 @@ void PicrossGrid::updateHints()
             int hint_counter_left = 0;
             for (int j = 11; j >= 0; --j)
             {
-                if (!grid[i][j])
+                if (grid[i][j]) ++col_cell_counter;
+                if (!grid[i][j] || j == 0)
                 {
-                    if (row_cell_counter != 0)
+                    if (col_cell_counter > 0)
                     {
-                        grid_hints_up.push_back(row_cell_counter);
-                        row_cell_counter = 0;
+                        grid_hints_up.push_back(col_cell_counter);
                         ++hint_counter_up;
-                    }
-                }
-                else ++row_cell_counter;
-                if (!grid[i][j])
-                {
-                    if (col_cell_counter != 0)
-                    {
-                        grid_hints_left.push_back(col_cell_counter);
                         col_cell_counter = 0;
-                        ++hint_counter_left;
                     }
                 }
-                else ++col_cell_counter;
+                if (grid[j][i]) ++row_cell_counter;
+                if (!grid[j][i] || j == 0)
+                {
+                    if (row_cell_counter > 0)
+                    {
+                        grid_hints_left.push_back(row_cell_counter);
+                        ++hint_counter_left;
+                        row_cell_counter = 0;
+                    }
+                }
             }
 
             for (int j = 0; j < 6 - hint_counter_left; ++j)
