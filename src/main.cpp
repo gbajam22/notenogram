@@ -2,6 +2,7 @@
 #include "bn_bg_palettes.h"
 #include "bn_sprite_actions.h"
 
+#include "state_free_play_menu.h"
 #include "state_main.h"
 #include "vn_text_output.h"
 
@@ -19,6 +20,6 @@ int main()
                          variable_8x8_sprite_font_character_widths);
     bn::sprite_text_generator txt(font);
     bn::sprite_text_generator* text_ptr = &txt;
-
-    MainGame::solvePuzzle();
+    MainGame::solvePuzzle(PuzzleSelect::menu(text_ptr));
+    //MainGame::createPuzzle();
 }
