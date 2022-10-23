@@ -13,7 +13,7 @@
 class PicrossGrid
 {
 private:
-    bn::array<bn::array<bool, 12>, 12> grid;
+    bn::array<bool, 144> grid;
 
     bn::array<int, 2> cursor_position;
     static constexpr int screen_cell_upper_limit = 24;
@@ -38,8 +38,9 @@ public:
 
     void outputHints();
     void updateHints();
+    void updateHints(bn::array<bool, 144> const &);
 
-    bool checkSolution();
+    bool checkSolution(bn::array<bool, 144> const &);
     void solve();
     void create();
 

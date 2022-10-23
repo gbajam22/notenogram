@@ -6,6 +6,7 @@
 #include "bn_music_actions.h"
 
 #include "picross_grid.h"
+#include "picross_solutions.h"
 #include "vn_text_output.h"
 
 #include "bn_regular_bg_items_square.h"
