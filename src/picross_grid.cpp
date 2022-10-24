@@ -18,7 +18,7 @@ PicrossGrid::PicrossGrid()
         }
     }
 }
-
+//todo: separate helper/toolkit class for coordinate conversion
 int PicrossGrid::cellX2Screen()
 {
     return (cursor_position[0] * 8) - (32 * 4) + 8;
@@ -73,9 +73,31 @@ bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
         cell = info.cell();
         return true;
     }
-    else if (bn::keypad::select_pressed() && creator_mode)
+    else return false;
+}
+
+bool PicrossGrid::processKeyContinuousInput(bn::regular_bg_map_cell& cell)
+{
+    bn::regular_bg_map_cell_info info(cell);
+    if (bn::keypad::a_held())
     {
-        resetGrid();
+        int current_index = info.tile_index();
+        if (current_index == 1)
+        {
+            grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = true;
+            info.set_tile_index(3);
+            cell = info.cell();
+        }
+        return true;
+    }
+    else if (bn::keypad::b_held())
+    {
+        int current_index = info.tile_index();
+        if (current_index == 1)
+        {
+            info.set_tile_index(2);
+            cell = info.cell();
+        }
         return true;
     }
     else return false;
@@ -118,11 +140,60 @@ bool PicrossGrid::processDPadInput()
     return false;
 }
 
-void PicrossGrid::outputHints()
+bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
 {
+    if (bn::keypad::down_pressed() || (bn::keypad::down_held() && frames2skip == 20))
+    {
+        if (cursor_position[1] < screen_cell_upper_limit)
+        {
+            ++cursor_position[1];
+            frames2skip = 0;
+        }
+        return true;
+    }
+    else if (bn::keypad::up_pressed() || (bn::keypad::up_held() && frames2skip == 20))
+    {
+        if (cursor_position[1] > screen_cell_lower_limit)
+        {
+            --cursor_position[1];
+            frames2skip = 0;
+        }
+        return true;
+    }
+    if (bn::keypad::left_pressed() || (bn::keypad::left_held() && frames2skip == 20))
+        {
+            if (cursor_position[0] > screen_cell_lower_limit)
+            {
+                --cursor_position[0];
+                frames2skip = 0;
+            }
+            return true;
+        }
+    else if (bn::keypad::right_pressed() || (bn::keypad::right_held() && frames2skip == 20))
+    {
+        if (cursor_position[0] < screen_cell_upper_limit)
+        {
+            ++cursor_position[0];
+            frames2skip = 0;
+        }
+        return true;
+    }
+    if (bn::keypad::a_held())
+    {
 
+    }
+    ++frames2skip;
+    return false;
 }
 
+
+//for on-screen hints, true if wrong cell is marked
+bool PicrossGrid::checkCurrentCell(bn::array<bool, 144> const &solution)
+{
+    return grid[12*cursor_position[1]+cursor_position[0]] && !solution[12*cursor_position[1]+cursor_position[0]];
+}
+
+//for solution overall, true if 100% correct
 bool PicrossGrid::checkSolution(bn::array<bool, 144> const &solution)
 {
     for (int i = 0; i < 144; ++i)
@@ -132,55 +203,14 @@ bool PicrossGrid::checkSolution(bn::array<bool, 144> const &solution)
     return true;
 }
 
-
-void PicrossGrid::updateHints()
+bn::array<bool, 144> const &PicrossGrid::getCurrentGrid()
 {
-    if (creator_mode)
-    {
-        grid_hints_left.clear();
-        grid_hints_up.clear();
+    return grid;
+}
 
-        for (int i = 0; i < 12; ++i)
-        {
-            int row_cell_counter = 0;
-            int col_cell_counter = 0;
+void PicrossGrid::drawHints(bn::regular_bg_map_cell& cells)
+{
 
-            int hint_counter_up = 0;
-            int hint_counter_left = 0;
-            for (int j = 11; j >= 0; --j)
-            {
-                if (grid[12*j+i]) ++col_cell_counter;
-                if (!grid[12*j+i] || j == 0)
-                {
-                    if (col_cell_counter > 0)
-                    {
-                        grid_hints_up.push_back(col_cell_counter);
-                        ++hint_counter_up;
-                        col_cell_counter = 0;
-                    }
-                }
-                if (grid[12*i+j]) ++row_cell_counter;
-                if (!grid[12*i+j] || j == 0)
-                {
-                    if (row_cell_counter > 0)
-                    {
-                        grid_hints_left.push_back(row_cell_counter);
-                        ++hint_counter_left;
-                        row_cell_counter = 0;
-                    }
-                }
-            }
-
-            for (int j = 0; j < 6 - hint_counter_left; ++j)
-            {
-                grid_hints_left.push_back(0);
-            }
-            for (int j = 0; j < 6 - hint_counter_up; ++j)
-            {
-                grid_hints_up.push_back(0);
-            }
-        }
-    }
 }
 
 void PicrossGrid::updateHints(bn::array<bool, 144> const &_grid)

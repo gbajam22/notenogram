@@ -34,12 +34,15 @@ public:
     int getCursorY();
 
     bool processKeyInput(bn::regular_bg_map_cell&);
+    bool processKeyContinuousInput(bn::regular_bg_map_cell&);
     bool processDPadInput();
+    bool processDPadContinuousInput(int&);
 
-    void outputHints();
-    void updateHints();
+    bn::array<bool, 144> const &getCurrentGrid();
+    void drawHints(bn::regular_bg_map_cell&);
     void updateHints(bn::array<bool, 144> const &);
 
+    bool checkCurrentCell(bn::array<bool, 144> const &solution);
     bool checkSolution(bn::array<bool, 144> const &);
     void solve();
     void create();

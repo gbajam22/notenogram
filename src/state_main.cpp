@@ -63,9 +63,8 @@ namespace MainGame
                                          grid.getCursorX(),
                                          grid.getCursorY())]))
             {
-                grid.updateHints();
+                grid.updateHints(grid.getCurrentGrid());
 
-                int hint_index = 0;
                 for (int i = 0; i < 12; ++i)
                 {
                     for (int j = 0; j < 6; ++j)
@@ -92,7 +91,6 @@ namespace MainGame
                         }
                         else current_cell_info.set_tile_index(1);
                         current_cell = current_cell_info.cell();
-                        ++hint_index;
                     }
                 }
 
@@ -103,7 +101,7 @@ namespace MainGame
         }
     }
 
-    void solvePuzzle()
+    void solvePuzzle(const bn::array<bool, 144> &p)
     {
         bn::bg_palette_item common_palette(bn::regular_bg_items::square.palette_item());
 
@@ -156,8 +154,8 @@ namespace MainGame
         PicrossGrid grid;
         grid.solve();
 
-        grid.updateHints(puzzle::Kanji_Flower);
-        int hint_index = 0;
+        grid.updateHints(p);
+
         for (int i = 0; i < 12; ++i)
         {
             for (int j = 0; j < 6; ++j)
@@ -184,21 +182,26 @@ namespace MainGame
                 }
                 else current_cell_info.set_tile_index(1);
                 current_cell = current_cell_info.cell();
-                ++hint_index;
             }
         }
 
         bn::sprite_ptr cursor_sprite = bn::sprite_items::cursor_pen.create_sprite(grid.cellX2Screen(), grid.cellY2Screen());
 
+        int frames2skip = 0;
         while(true)
         {
-            grid.processDPadInput();
-            if (grid.processKeyInput(cells[map_item.cell_index(
+            //grid.processDPadInput();
+            if (
+                    (grid.processDPadContinuousInput(frames2skip) &&
+                    grid.processKeyContinuousInput(cells[map_item.cell_index(
+                                                       grid.getCursorX(),
+                                                       grid.getCursorY())])) ||
+                    grid.processKeyInput(cells[map_item.cell_index(
                                          grid.getCursorX(),
                                          grid.getCursorY())]))
             {
                 map.reload_cells_ref();
-                if(grid.checkSolution(puzzle::Kanji_Flower))
+                if(grid.checkSolution(p))
                 {
                     bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(11,11)];
                     bn::regular_bg_map_cell_info current_cell_info(current_cell);
