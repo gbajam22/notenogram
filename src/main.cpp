@@ -2,14 +2,9 @@
 #include "bn_bg_palettes.h"
 #include "bn_sprite_actions.h"
 
-#include "state_free_play_menu.h"
-#include "state_main.h"
+#include "state_start_menu.h"
 #include "vn_text_output.h"
 
-#include "bn_regular_bg_items_square.h"
-#include "bn_sprite_items_cursor_circle.h"
-#include "bn_sprite_items_cursor_eraser.h"
-#include "bn_sprite_items_cursor_pen.h"
 #include "kvalligraphy_8x8_variable.h"
 
 int main()
@@ -22,4 +17,12 @@ int main()
     bn::sprite_text_generator* text_ptr = &txt;
     MainGame::solvePuzzle(PuzzleSelect::menu(text_ptr));
     //MainGame::createPuzzle();
+
+    /*bool weh = true;
+
+    bn::fixed x = 0;
+    bn::fixed y = 0;
+
+    MainMenu::setScrollingScreen(x,y);
+    MainMenu::menu(weh,text_ptr);*/
 }

@@ -187,6 +187,8 @@ constexpr bn::array<bool, 144> Things_Notepad =
         0,1,0,0,0,0,0,0,0,0,1,1,
         0,1,1,1,1,1,1,1,1,1,1,0
     };
+
+inline bn::array<bool, 144> Custom = {0};
 }
 
 #endif // PICROSS_SOLUTIONS_H

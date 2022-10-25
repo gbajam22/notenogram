@@ -24,7 +24,15 @@ namespace PuzzleSelect
             int cols = 32;
             int rows = 32;
 
+        bool slot1_occupied = tool::validateSRAMData(0x00);
+        bool slot2_occupied = tool::validateSRAMData(0x90);
+        bool slot3_occupied = tool::validateSRAMData(0x120);
+
         int screen_cells = cols*rows;
+        int menu_hrz_lower_limit = 15;
+        int menu_hrz_upper_limit = 19;
+        int menu_vrt_lower_limit = 13;
+        int menu_vrt_upper_limit = menu_hrz_upper_limit;
 
         bn::regular_bg_map_cell cells[screen_cells];
         bn::regular_bg_map_item map_item(cells[0], bn::size(cols, rows));
@@ -39,6 +47,14 @@ namespace PuzzleSelect
         //GameState state;
         //state.PaperSheetPattern_Regular();
 
+        int8_t cart_sram_data = 255;
+        bn::sram::read(cart_sram_data);
+
+        if (slot1_occupied || slot2_occupied || slot3_occupied)
+        {
+            menu_vrt_upper_limit += 2;
+        }
+
         for (int i = 0; i < cols; ++i)
             {
                 for (int j = 0; j < rows; ++j)
@@ -47,11 +63,15 @@ namespace PuzzleSelect
                     bn::regular_bg_map_cell& current_cell = cells[map_item.cell_index(j, i)];
 
                     int cell_number = 1;
-                    if (i < 6 || i > 24)
+                    if (i < 7 || i > 24)
                         cell_number = 32;
-                    if (i == 21)
+                    if (i == 7)
+                    {
+                        cell_number = j & 1 ? 25 : 24;
+                    }
+                    if (i == 22)
                         cell_number = 23;
-                    if (i == 13 || i == 15 || i == 17 || i == 19)
+                    if (i >= menu_vrt_lower_limit && i <= menu_vrt_upper_limit && i & 1)
                     {
                         if (j == 15)
                             cell_number = 4;
@@ -68,39 +88,44 @@ namespace PuzzleSelect
 
         text _text(stg);
 
-        _text.outputSingleLine(cellX2Screen(10, 4), cellY2Screen(9, 4), "Choose a puzzle");
+        _text.outputSingleLine(cellX2Screen(9, 4), cellY2Screen(10, 4), "Choose a puzzle");
 
         _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(13, 4), "things");
         _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(15, 4), "nature");
         _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(17, 4), "kanji");
         _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(19, 4), "portraits");
 
+        if (slot1_occupied || slot2_occupied || slot3_occupied)
+        {
+            _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(21, 4), "custom");
+        }
+
         while(true)
         {
             if (bn::keypad::down_pressed())
             {
-                if (cursor_position[1] < 19)
+                if (cursor_position[1] < menu_vrt_upper_limit)
                 {
                     cursor_position[1]+=2;
                 }
             }
             else if (bn::keypad::up_pressed())
             {
-                if (cursor_position[1] > 13)
+                if (cursor_position[1] > menu_vrt_lower_limit)
                 {
                     cursor_position[1]-=2;
                 }
             }
             if (bn::keypad::right_pressed())
             {
-                if (cursor_position[0] < 19)
+                if (cursor_position[0] < menu_hrz_upper_limit )
                 {
                     cursor_position[0]+=2;
                 }
             }
             else if (bn::keypad::left_pressed())
             {
-                if (cursor_position[0] > 15)
+                if (cursor_position[0] > menu_hrz_lower_limit )
                 {
                     cursor_position[0]-=2;
                 }
@@ -157,6 +182,31 @@ namespace PuzzleSelect
                         return puzzle::Portrait_Tooru;
                     case 19:
                         return puzzle::Portrait_Yuuji;
+                    default:
+                        break;
+                    }
+                    break;
+                case 21:
+                    switch(cursor_position[0])
+                    {
+                    case 15:
+                        if (slot1_occupied)
+                        {
+                            bn::sram::read_offset(puzzle::Custom, 0);
+                            return puzzle::Custom;
+                        }
+                    case 17:
+                        if (slot2_occupied)
+                        {
+                            bn::sram::read_offset(puzzle::Custom, 0x90);
+                            return puzzle::Custom;
+                        }
+                    case 19:
+                        if (slot3_occupied)
+                        {
+                            bn::sram::read_offset(puzzle::Custom, 0x90);
+                            return puzzle::Custom;
+                        }
                     default:
                         break;
                     }

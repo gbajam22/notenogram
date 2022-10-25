@@ -56,12 +56,19 @@ namespace MainGame
         grid.create();
         bn::sprite_ptr cursor_sprite = bn::sprite_items::cursor_pen.create_sprite(grid.cellX2Screen(), grid.cellY2Screen());
 
+        int frames2skip = 0;
+        int offset = 0x00;
+
         while(true)
         {
-            grid.processDPadInput();
-            if (grid.processKeyInput(cells[map_item.cell_index(
-                                         grid.getCursorX(),
-                                         grid.getCursorY())]))
+            if (
+                    (grid.processDPadContinuousInput(frames2skip) &&
+                     grid.processKeyContinuousInput(cells[map_item.cell_index(
+                                                        grid.getCursorX(),
+                                                        grid.getCursorY())])) ||
+                     grid.processKeyInput(cells[map_item.cell_index(
+                                          grid.getCursorX(),
+                                          grid.getCursorY())]))
             {
                 grid.updateHints(grid.getCurrentGrid());
 
@@ -96,6 +103,18 @@ namespace MainGame
 
                 map.reload_cells_ref();
             }
+            if (bn::keypad::start_pressed())
+            {
+                bn::sram::write_offset(grid.getCurrentGrid(), offset);
+            }
+            if (bn::keypad::l_pressed())
+            {
+                offset = offset < 0x00 ? 0x120 : offset - 0x90;
+            }
+            else if (bn::keypad::r_pressed())
+            {
+                offset = offset > 0x120 ? 0x00 : offset + 0x90;
+            }
             cursor_sprite.set_position(grid.cellX2Screen(), grid.cellY2Screen());
             bn::core::update();
         }
@@ -103,6 +122,7 @@ namespace MainGame
 
     void solvePuzzle(const bn::array<bool, 144> &p)
     {
+        //bn::sound_items::ganbattene.play(0.5);
         bn::bg_palette_item common_palette(bn::regular_bg_items::square.palette_item());
 
             bn::fixed bg_x = 0;
@@ -203,6 +223,7 @@ namespace MainGame
                 map.reload_cells_ref();
                 if(grid.checkSolution(p))
                 {
+                    //bn::sound_items::yoku_dekimasita.play(0.5);
                     bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(11,11)];
                     bn::regular_bg_map_cell_info current_cell_info(current_cell);
                     current_cell_info.set_tile_index(29);
