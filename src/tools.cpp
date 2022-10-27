@@ -2,24 +2,44 @@
 
 namespace tool
 {
-    int cellX2Screen(int &x)
+    /*int cellX2Screen(int x)
     {
         return (x * 8) - (32 * 4) + 8;
     }
 
-    int cellY2Screen(int &y)
+    int cellY2Screen(int y)
     {
         return (y * 8) - (32 * 4) + 8;
     }
 
-    int cellX2Screen(bn::fixed &x)
+    int cellX2Screen(bn::fixed x)
     {
         return (x.integer() * 8) - (32 * 4) + 8;
     }
 
-    int cellY2Screen(bn::fixed &y)
+    int cellY2Screen(bn::fixed y)
     {
         return (y.integer() * 8) - (32 * 4) + 8;
+    }*/
+
+    int cellX2Screen(int x, int delta_x)
+    {
+        return (x * 8) - (32 * 4) + delta_x;
+    }
+
+    int cellY2Screen(int y, int delta_y)
+    {
+        return (y * 8) - (32 * 4) + delta_y;
+    }
+
+    int cellX2Screen(bn::fixed x, int delta_x)
+    {
+        return (x.integer() * 8) - (32 * 4) + delta_x;
+    }
+
+    int cellY2Screen(bn::fixed y, int delta_y)
+    {
+        return (y.integer() * 8) - (32 * 4) + delta_y;
     }
 
     bool validateSRAMData(int offset)
@@ -33,7 +53,8 @@ namespace tool
                 if (puzzle_slot[i] != 1 && puzzle_slot[i] != 0)
                     return false;
             }
+            return true;
         }
-        return true;
+        return false;
     }
 }

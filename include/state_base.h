@@ -1,45 +1,56 @@
 #ifndef STATE_BASE_H
 #define STATE_BASE_H
 
-#include "bn_unique_ptr.h"
+#include "bn_sprite_ptr.h"
 #include "bn_regular_bg_builder.h"
+#include "bn_sprite_builder.h"
 
 #include "picross_grid.h"
+#include "picross_solutions.h"
+#include "tools.h"
+
+#include "bn_regular_bg_items_square.h"
+#include "bn_sprite_items_logo.h"
 
 class GameState
 {
-    /*static const int columns = 32;
-    static const int rows = 32;
-    static const int screen_cells = columns*rows;
-    bn::fixed bg_x, bg_y;
+    static constexpr int columns = 32;
+    static constexpr int rows = 32;
+    static constexpr int screen_cells = 32*32;
+    int bg_x, bg_y;
 
-    bn::bg_palette_item common_palette;
-    bn::regular_bg_map_ptr map;
-    bn::regular_bg_ptr bg;
-
-    static bn::optional<bn::sprite_ptr> cursor_sprite;
+    bn::regular_bg_map_cell cells[32*32];
+    bn::regular_bg_map_item item;
 
 public:
 
-    bn::regular_bg_map_cell cells[screen_cells];
-    bn::regular_bg_map_item item;
+    bn::array<bool, 144> &current_puzzle;
 
     GameState();
     GameState(int, int);
     GameState(int, int, bn::bg_palette_item const&);
 
     bn::regular_bg_ptr buildBG();
-    bn::bg_palette_item getCommonPalette();
+    bn::optional<bn::sprite_ptr> buildSprite(const bn::sprite_item &, int, int);
+    const bn::bg_palette_item getCommonPalette();
+
+    //void setCellTile(int);
+    void setCellTile(int, int, int);
+
+    bn::regular_bg_map_cell& retrieveCell(int, int);
 
     void resetMap();
-    void refreshScreen();
-    void scrollScreen(int, int);
+    void refreshScreen(bn::regular_bg_map_ptr &);
+    void scrollScreen(int, int, bn::regular_bg_ptr &);
 
     void PaperSheetPattern_Regular();
     void PaperSheetPattern_Holed();
-    void PaperSheetPattern_VScrollable();
-    void PaperSheetPattern_HScrollable();
-    void PaperSheetPattern_VTorn();*/
+    void PaperSheetPattern_Scrollable();
+    void PaperSheetPattern_PuzzleSelection(int&, int&);
+
+    virtual int updateState() = 0;
+
+    ~GameState();
 };
 
 #endif // STATE_BASE_H

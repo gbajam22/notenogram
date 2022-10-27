@@ -18,16 +18,6 @@ PicrossGrid::PicrossGrid()
         }
     }
 }
-//todo: separate helper/toolkit class for coordinate conversion
-int PicrossGrid::cellX2Screen()
-{
-    return (cursor_position[0] * 8) - (32 * 4) + 8;
-}
-
-int PicrossGrid::cellY2Screen()
-{
-    return (cursor_position[1] * 8) - (32 * 4) + 8;
-}
 
 int PicrossGrid::getCursorX()
 {
@@ -39,7 +29,6 @@ int PicrossGrid::getCursorY()
     return cursor_position[1];
 }
 
-//todo: continuous cell marking like in battle picross
 bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
 {
     bn::regular_bg_map_cell_info info(cell);
@@ -51,6 +40,7 @@ bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
         {
             new_index = 3;
             grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = true;
+            bn::sound_items::pen_color.play(0.9);
         }
         else
         {
@@ -68,6 +58,7 @@ bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
         {
             new_index = 2;
             grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = false;
+            bn::sound_items::pen_cross.play(0.9);
         }
         info.set_tile_index(new_index);
         cell = info.cell();
@@ -85,6 +76,7 @@ bool PicrossGrid::processKeyContinuousInput(bn::regular_bg_map_cell& cell)
         if (current_index == 1)
         {
             grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = true;
+            bn::sound_items::pen_color.play(0.9);
             info.set_tile_index(3);
             cell = info.cell();
         }
@@ -96,6 +88,7 @@ bool PicrossGrid::processKeyContinuousInput(bn::regular_bg_map_cell& cell)
         if (current_index == 1)
         {
             info.set_tile_index(2);
+            bn::sound_items::pen_cross.play(0.9);
             cell = info.cell();
         }
         return true;
@@ -142,7 +135,7 @@ bool PicrossGrid::processDPadInput()
 
 bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
 {
-    if (bn::keypad::down_pressed() || (bn::keypad::down_held() && frames2skip == 20))
+    if (bn::keypad::down_pressed() || (bn::keypad::down_held() && frames2skip == 10))
     {
         if (cursor_position[1] < screen_cell_upper_limit)
         {
@@ -151,7 +144,7 @@ bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
         }
         return true;
     }
-    else if (bn::keypad::up_pressed() || (bn::keypad::up_held() && frames2skip == 20))
+    else if (bn::keypad::up_pressed() || (bn::keypad::up_held() && frames2skip == 10))
     {
         if (cursor_position[1] > screen_cell_lower_limit)
         {
@@ -160,7 +153,7 @@ bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
         }
         return true;
     }
-    if (bn::keypad::left_pressed() || (bn::keypad::left_held() && frames2skip == 20))
+    if (bn::keypad::left_pressed() || (bn::keypad::left_held() && frames2skip == 10))
         {
             if (cursor_position[0] > screen_cell_lower_limit)
             {
@@ -169,7 +162,7 @@ bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
             }
             return true;
         }
-    else if (bn::keypad::right_pressed() || (bn::keypad::right_held() && frames2skip == 20))
+    else if (bn::keypad::right_pressed() || (bn::keypad::right_held() && frames2skip == 10))
     {
         if (cursor_position[0] < screen_cell_upper_limit)
         {
@@ -177,10 +170,6 @@ bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
             frames2skip = 0;
         }
         return true;
-    }
-    if (bn::keypad::a_held())
-    {
-
     }
     ++frames2skip;
     return false;
@@ -190,7 +179,11 @@ bool PicrossGrid::processDPadContinuousInput(int &frames2skip)
 //for on-screen hints, true if wrong cell is marked
 bool PicrossGrid::checkCurrentCell(bn::array<bool, 144> const &solution)
 {
-    return grid[12*cursor_position[1]+cursor_position[0]] && !solution[12*cursor_position[1]+cursor_position[0]];
+    return
+            grid[12*(cursor_position[1]-screen_cell_lower_limit)
+                +(cursor_position[0]-screen_cell_lower_limit)] &&
+            !solution[12*(cursor_position[1]-screen_cell_lower_limit)
+                +(cursor_position[0]-screen_cell_lower_limit)];
 }
 
 //for solution overall, true if 100% correct
@@ -206,11 +199,6 @@ bool PicrossGrid::checkSolution(bn::array<bool, 144> const &solution)
 bn::array<bool, 144> const &PicrossGrid::getCurrentGrid()
 {
     return grid;
-}
-
-void PicrossGrid::drawHints(bn::regular_bg_map_cell& cells)
-{
-
 }
 
 void PicrossGrid::updateHints(bn::array<bool, 144> const &_grid)

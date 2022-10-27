@@ -1,237 +1,188 @@
 #include "state_main.h"
 
-namespace MainGame
+MainGame::MainGame() :
+    GameState(), bg(buildBG()), map(bg.map()), //current_puzzle(puzzle_ref),
+    frames2skip(0), offset(0), mistake_made(false), puzzle_solved(false), mistake_frame_counter(0),
+    cursor_sprite(buildSprite(bn::sprite_items::cursor_pen, 0,0)),
+    stamp(buildSprite(bn::sprite_items::stamp, -88,48)),
+    notono_window(buildSprite(bn::sprite_items::notonochan, -56, -56)),
+    //scribble_left(buildSprite(bn::sprite_items::scribble_star.tiles_item(), -88, 56)),
+    scribble_right(buildSprite(bn::sprite_items::scribble_heart, 96, -64))
 {
-    void createPuzzle()
+    notono_window->set_visible(false);
+    stamp->set_visible(false);
+    createPuzzle();
+}
+
+MainGame::MainGame(bn::array<bool, 144> &puzzle_ref) :
+    GameState(), bg(buildBG()), map(bg.map()), //current_puzzle(puzzle_ref),
+    frames2skip(0), offset(0), mistake_made(false), puzzle_solved(false), mistake_frame_counter(0),
+    cursor_sprite(buildSprite(bn::sprite_items::cursor_pen, 0,0)),
+    stamp(buildSprite(bn::sprite_items::stamp, -88,48)),
+    notono_window(buildSprite(bn::sprite_items::notonochan, -56, -56)),
+    //scribble_left(buildSprite(bn::sprite_items::scribble_star.tiles_item(), -88, 56)),
+    scribble_right(buildSprite(bn::sprite_items::scribble_heart, 96, -64))
+{
+    stamp->set_visible(false);
+    current_puzzle = puzzle_ref;
+    solvePuzzle();
+}
+
+/*MainGame::MainGame(int x, int y, bn::array<bool, 144> &puzzle_ref) :
+    GameState(x,y), bg(buildBG()), map(bg.map()), //current_puzzle(puzzle_ref),
+    frames2skip(0), offset(0), mistake_made(false), puzzle_solved(false), mistake_frame_counter(0),
+    cursor_sprite(bn::sprite_items::cursor_pen.create_sprite_optional(0,0)),
+    stamp(bn::sprite_items::stamp.create_sprite_optional(88,48)),
+    notono_window(bn::sprite_items::notonochan.create_sprite_optional(-56, -56)),
+    scribble_left(bn::sprite_items::scribble_star.create_sprite_optional(-88, 56)),
+    scribble_right(bn::sprite_items::scribble_heart.create_sprite_optional(96, -64))
+{
+    stamp->set_visible(false);
+    current_puzzle = puzzle_ref;
+}
+
+
+MainGame::MainGame(int x, int y, bn::bg_palette_item const& palette, bn::array<bool, 144> &puzzle_ref) :
+    GameState(x,y,palette) , bg(buildBG()), map(bg.map()), //current_puzzle(puzzle_ref),
+    frames2skip(0), offset(0), mistake_made(false), puzzle_solved(false), mistake_frame_counter(0),
+    cursor_sprite(bn::sprite_items::cursor_pen.create_sprite_optional(0,0)),
+    stamp(bn::sprite_items::stamp.create_sprite_optional(88,48)),
+    notono_window(bn::sprite_items::notonochan.create_sprite_optional(-56, -56)),
+    scribble_left(bn::sprite_items::scribble_star.create_sprite_optional(-88, 56)),
+    scribble_right(bn::sprite_items::scribble_heart.create_sprite_optional(96, -64))
+{
+    stamp->set_visible(false);
+    current_puzzle = puzzle_ref;
+}*/
+
+
+void MainGame::redrawHints()
+{
+    for (int i = 0; i < 12; ++i)
     {
-        bn::bg_palette_item common_palette(bn::regular_bg_items::square.palette_item());
-
-            bn::fixed bg_x = 0;
-            bn::fixed bg_y = 0;
-            int cols = 32;
-            int rows = 32;
-
-        int screen_cells = cols*rows;
-
-        bn::regular_bg_map_cell cells[screen_cells];
-        bn::regular_bg_map_item map_item(cells[0], bn::size(cols, rows));
-
-        bn::regular_bg_item item(bn::regular_bg_items::square.tiles_item(), common_palette,
-                                 map_item);
-
-        bn::regular_bg_ptr grid_bg = item.create_bg(0, 0);
-        bn::regular_bg_map_ptr map = grid_bg.map();
-
-        bn::memory::clear(screen_cells, cells[0]);
-        //GameState state;
-        //state.PaperSheetPattern_Regular();
-
-        for (int i = 0; i < cols; ++i)
-            {
-                for (int j = 0; j < rows; ++j)
-                {
-                    bn::regular_bg_map_cell_info cell_info(cells[map_item.cell_index(j, i)]);
-                    bn::regular_bg_map_cell& current_cell = cells[map_item.cell_index(j, i)];
-
-                    int cell_number = 1;
-                    if (j < 2 || j > 29)
-                        cell_number = 32;
-                    if (j == 2)
-                        cell_number = 21;
-                    /*if (j == 3 && i % 5 == 0)
-                        cell_number = 19;
-                    if (j == 3 && i % 6 == 0)
-                        cell_number = 20;*/
-                    if (j == 25)
-                        cell_number = 16;
-                    if (j == 29)
-                        cell_number = 22;
-                    cell_info.set_tile_index(cell_number);
-                    current_cell = cell_info.cell();
-                }
-            }
-        map.reload_cells_ref();
-
-        PicrossGrid grid;
-        grid.create();
-        bn::sprite_ptr cursor_sprite = bn::sprite_items::cursor_pen.create_sprite(grid.cellX2Screen(), grid.cellY2Screen());
-
-        int frames2skip = 0;
-        int offset = 0x00;
-
-        while(true)
+        for (int j = 0; j < 6; ++j)
         {
-            if (
-                    (grid.processDPadContinuousInput(frames2skip) &&
-                     grid.processKeyContinuousInput(cells[map_item.cell_index(
-                                                        grid.getCursorX(),
-                                                        grid.getCursorY())])) ||
-                     grid.processKeyInput(cells[map_item.cell_index(
-                                          grid.getCursorX(),
-                                          grid.getCursorY())]))
+            if (grid.grid_hints_up[6*i+j] > 0)
             {
-                grid.updateHints(grid.getCurrentGrid());
-
-                for (int i = 0; i < 12; ++i)
-                {
-                    for (int j = 0; j < 6; ++j)
-                    {
-                        bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(13+i, 12-j)];
-                        bn::regular_bg_map_cell_info current_cell_info(current_cell);
-                        if (grid.grid_hints_up[6*i+j] > 0)
-                        {
-                            current_cell_info.set_tile_index(grid.grid_hints_up[6*i+j]+3);
-                        }
-                        else current_cell_info.set_tile_index(1);
-                        current_cell = current_cell_info.cell();
-                    }
-                }
-                for (int i = 0; i < 12; ++i)
-                {
-                    for (int j = 0; j < 6; ++j)
-                    {
-                        bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(12-j, 13+i)];
-                        bn::regular_bg_map_cell_info current_cell_info(current_cell);
-                        if (grid.grid_hints_left[6*i+j] > 0)
-                        {
-                            current_cell_info.set_tile_index(grid.grid_hints_left[6*i+j]+3);
-                        }
-                        else current_cell_info.set_tile_index(1);
-                        current_cell = current_cell_info.cell();
-                    }
-                }
-
-                map.reload_cells_ref();
+                setCellTile(13+i, 12-j, grid.grid_hints_up[6*i+j]+3);
             }
-            if (bn::keypad::start_pressed())
-            {
-                bn::sram::write_offset(grid.getCurrentGrid(), offset);
-            }
-            if (bn::keypad::l_pressed())
-            {
-                offset = offset < 0x00 ? 0x120 : offset - 0x90;
-            }
-            else if (bn::keypad::r_pressed())
-            {
-                offset = offset > 0x120 ? 0x00 : offset + 0x90;
-            }
-            cursor_sprite.set_position(grid.cellX2Screen(), grid.cellY2Screen());
-            bn::core::update();
+            else setCellTile(13+i, 12-j, 1);
         }
     }
-
-    void solvePuzzle(const bn::array<bool, 144> &p)
+    for (int i = 0; i < 12; ++i)
     {
-        //bn::sound_items::ganbattene.play(0.5);
-        bn::bg_palette_item common_palette(bn::regular_bg_items::square.palette_item());
-
-            bn::fixed bg_x = 0;
-            bn::fixed bg_y = 0;
-            int cols = 32;
-            int rows = 32;
-
-        int screen_cells = cols*rows;
-
-        bn::regular_bg_map_cell cells[screen_cells];
-        bn::regular_bg_map_item map_item(cells[0], bn::size(cols, rows));
-
-        bn::regular_bg_item item(bn::regular_bg_items::square.tiles_item(), common_palette,
-                                 map_item);
-
-        bn::regular_bg_ptr grid_bg = item.create_bg(0, 0);
-        bn::regular_bg_map_ptr map = grid_bg.map();
-
-        bn::memory::clear(screen_cells, cells[0]);
-        //GameState state;
-        //state.PaperSheetPattern_Regular();
-
-        for (int i = 0; i < cols; ++i)
+        for (int j = 0; j < 6; ++j)
+        {
+            if (grid.grid_hints_left[6*i+j] > 0)
             {
-                for (int j = 0; j < rows; ++j)
-                {
-                    bn::regular_bg_map_cell_info cell_info(cells[map_item.cell_index(j, i)]);
-                    bn::regular_bg_map_cell& current_cell = cells[map_item.cell_index(j, i)];
-
-                    int cell_number = 1;
-                    if (j < 2 || j > 29)
-                        cell_number = 32;
-                    if (j == 2)
-                        cell_number = 21;
-                    /*if (j == 3 && i % 5 == 0)
-                        cell_number = 19;
-                    if (j == 3 && i % 6 == 0)
-                        cell_number = 20;*/
-                    if (j == 25)
-                        cell_number = 16;
-                    if (j == 29)
-                        cell_number = 22;
-                    cell_info.set_tile_index(cell_number);
-                    current_cell = cell_info.cell();
-                }
+                setCellTile(12-j, 13+i, grid.grid_hints_left[6*i+j]+3);
             }
-        map.reload_cells_ref();
+            else setCellTile(12-j, 13+i, 1);
+        }
+    }
+}
 
-        PicrossGrid grid;
+void MainGame::createPuzzle()
+    {
+        resetMap();
+        PaperSheetPattern_Regular();
+        refreshScreen(map);
+
+        grid.create();
+        cursor_sprite->set_position(tool::cellX2Screen(grid.getCursorX(),8), tool::cellY2Screen(grid.getCursorY(),8));
+    }
+
+void MainGame::solvePuzzle()
+    {
+        resetMap();
+        PaperSheetPattern_Regular();
+        refreshScreen(map);
+
         grid.solve();
 
-        grid.updateHints(p);
+        grid.updateHints(current_puzzle);
 
-        for (int i = 0; i < 12; ++i)
+        redrawHints();
+        refreshScreen(map);
+
+        cursor_sprite->set_position(tool::cellX2Screen(grid.getCursorX(),8), tool::cellY2Screen(grid.getCursorY(),8));
+
+        /*notono_window->set_position(-56, -56);
+        scribble_left->set_position(-88, 56);
+        scribble_right->set_position(96, -64);*/
+    }
+
+int MainGame::updateState()
+{
+    if (
+            (grid.processDPadContinuousInput(frames2skip) &&
+             grid.processKeyContinuousInput(retrieveCell(grid.getCursorX(),
+                                                grid.getCursorY()))) ||
+             grid.processKeyInput(retrieveCell(grid.getCursorX(),
+                                                     grid.getCursorY()))
+       )
+    {
+        if (grid.creator_mode)
         {
-            for (int j = 0; j < 6; ++j)
+            grid.updateHints(grid.getCurrentGrid());
+
+            redrawHints();
+        }
+        else
+        {
+            if(grid.checkCurrentCell(current_puzzle))
             {
-                bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(13+i, 12-j)];
-                bn::regular_bg_map_cell_info current_cell_info(current_cell);
-                if (grid.grid_hints_up[6*i+j] > 0)
-                {
-                    current_cell_info.set_tile_index(grid.grid_hints_up[6*i+j]+3);
-                }
-                else current_cell_info.set_tile_index(1);
-                current_cell = current_cell_info.cell();
+                two_frame_anim[0] = bn::create_sprite_animate_action_forever
+                        (*notono_window, 5, bn::sprite_items::notonochan.tiles_item(), 2,3);
+                mistake_made = true;
+            }
+            if(grid.checkSolution(current_puzzle))
+            {
+                bn::sound_items::yoku_dekimasita.play(0.6);
+                two_frame_anim[0] = bn::create_sprite_animate_action_forever
+                        (*notono_window, 5, bn::sprite_items::notonochan.tiles_item(), 4,5);
+                stamp->set_visible(true);
             }
         }
-        for (int i = 0; i < 12; ++i)
+        refreshScreen(map);
+    }
+    for (int i = 0; i < 3; ++i)
+    {
+        two_frame_anim[i].update();
+    }
+    if (grid.creator_mode)
+    {
+        if (bn::keypad::start_pressed())
         {
-            for (int j = 0; j < 6; ++j)
-            {
-                bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(12-j, 13+i)];
-                bn::regular_bg_map_cell_info current_cell_info(current_cell);
-                if (grid.grid_hints_left[6*i+j] > 0)
-                {
-                    current_cell_info.set_tile_index(grid.grid_hints_left[6*i+j]+3);
-                }
-                else current_cell_info.set_tile_index(1);
-                current_cell = current_cell_info.cell();
-            }
+            bn::sram::write_offset(grid.getCurrentGrid(), offset);
         }
-
-        bn::sprite_ptr cursor_sprite = bn::sprite_items::cursor_pen.create_sprite(grid.cellX2Screen(), grid.cellY2Screen());
-
-        int frames2skip = 0;
-        while(true)
+        if (bn::keypad::l_pressed())
         {
-            //grid.processDPadInput();
-            if (
-                    (grid.processDPadContinuousInput(frames2skip) &&
-                    grid.processKeyContinuousInput(cells[map_item.cell_index(
-                                                       grid.getCursorX(),
-                                                       grid.getCursorY())])) ||
-                    grid.processKeyInput(cells[map_item.cell_index(
-                                         grid.getCursorX(),
-                                         grid.getCursorY())]))
-            {
-                map.reload_cells_ref();
-                if(grid.checkSolution(p))
-                {
-                    //bn::sound_items::yoku_dekimasita.play(0.5);
-                    bn::regular_bg_map_cell &current_cell = cells[map_item.cell_index(11,11)];
-                    bn::regular_bg_map_cell_info current_cell_info(current_cell);
-                    current_cell_info.set_tile_index(29);
-                    current_cell = current_cell_info.cell();
-                }
-            }
-            cursor_sprite.set_position(grid.cellX2Screen(), grid.cellY2Screen());
-            bn::core::update();
+            offset = offset < 0 ? 288 : offset - 144;
+            setCellTile(11, 11, 3+offset/144);
+        }
+        else if (bn::keypad::r_pressed())
+        {
+            offset = offset > 288 ? 0 : offset + 144;
+            setCellTile(11, 11, 3+offset/144);
         }
     }
+    else
+    {
+        if (mistake_made)
+        {
+            if (++mistake_frame_counter >= 60)
+            {
+                mistake_frame_counter = 0;
+                two_frame_anim[0] = bn::create_sprite_animate_action_forever
+                        (*notono_window, 5, bn::sprite_items::notonochan.tiles_item(), 0,1);
+                mistake_made = false;
+            }
+        }
+    }
+    if (bn::keypad::select_pressed())
+    {
+        return 0;
+    }
+    cursor_sprite->set_position(tool::cellX2Screen(grid.getCursorX(), 8), tool::cellY2Screen(grid.getCursorY(),8));
 }

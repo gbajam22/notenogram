@@ -1,227 +1,181 @@
 #include "state_free_play_menu.h"
 
-namespace PuzzleSelect
+PuzzleSelect::PuzzleSelect(bn::sprite_text_generator* stg) :
+    GameState(), bg(buildBG()), map(bg.map()), _text(stg),
+    menu_hrz_lower_limit(15), menu_hrz_upper_limit(19), menu_vrt_lower_limit(13), menu_vrt_upper_limit(19),
+    cursor_sprite(buildSprite(bn::sprite_items::cursor_circle, 0,0)),
+    scribble_left(buildSprite(bn::sprite_items::scribble_star, -96, -64))
 {
-    int cellX2Screen(int x, int spr_delta)
+    slots_occupied[0] = tool::validateSRAMData(0x00);
+    slots_occupied[1] = tool::validateSRAMData(0x90);
+    slots_occupied[2] = tool::validateSRAMData(0x120);
+    showMenu();
+}
+
+/*PuzzleSelect::PuzzleSelect(int x, int y, bn::sprite_text_generator* stg) :
+    GameState(x,y) , bg(buildBG()), map(bg.map()), _text(stg),
+    menu_hrz_lower_limit(15), menu_hrz_upper_limit(19), menu_vrt_lower_limit(13), menu_vrt_upper_limit(19),
+    cursor_sprite(bn::sprite_items::cursor_circle.create_sprite_optional(0,0)),
+    scribble_left(bn::sprite_items::scribble_heart.create_sprite_optional(0,0))
+{
+    slots_occupied[0] = tool::validateSRAMData(0x00);
+    slots_occupied[1] = tool::validateSRAMData(0x90);
+    slots_occupied[2] = tool::validateSRAMData(0x120);
+}
+
+PuzzleSelect::PuzzleSelect(int x, int y, bn::bg_palette_item const& palette, bn::sprite_text_generator* stg) :
+    GameState(x,y,palette) , bg(buildBG()), map(bg.map()), _text(stg),
+    menu_hrz_lower_limit(15), menu_hrz_upper_limit(19), menu_vrt_lower_limit(13), menu_vrt_upper_limit(19),
+    cursor_sprite(bn::sprite_items::cursor_circle.create_sprite_optional(0,0)),
+    scribble_left(bn::sprite_items::scribble_heart.create_sprite_optional(0,0))
+{
+    slots_occupied[0] = tool::validateSRAMData(0x00);
+    slots_occupied[1] = tool::validateSRAMData(0x90);
+    slots_occupied[2] = tool::validateSRAMData(0x120);
+}*/
+
+void PuzzleSelect::showMenu()
+{
+    resetMap();
+    PaperSheetPattern_PuzzleSelection(menu_vrt_lower_limit, menu_vrt_upper_limit);
+    refreshScreen(map);
+
+    _text.outputSingleLine(tool::cellX2Screen(9, 4), tool::cellY2Screen(10, 4), "Choose a puzzle");
+
+    _text.outputSingleLine(tool::cellX2Screen(6, 4), tool::cellY2Screen(13, 4), "things");
+    _text.outputSingleLine(tool::cellX2Screen(6, 4), tool::cellY2Screen(15, 4), "nature");
+    _text.outputSingleLine(tool::cellX2Screen(6, 4), tool::cellY2Screen(17, 4), "kanji");
+    _text.outputSingleLine(tool::cellX2Screen(6, 4), tool::cellY2Screen(19, 4), "portraits");
+
+    if (slots_occupied[0] || slots_occupied[1] || slots_occupied[2])
     {
-        return (x * 8) - (32 * 4) + spr_delta;
+        menu_vrt_upper_limit += 2;
+        _text.outputSingleLine(tool::cellX2Screen(6, 4), tool::cellY2Screen(21, 4), "custom");
+    }
+}
+
+int PuzzleSelect::updateState()
+{
+    if (bn::keypad::down_pressed() && cursor_position[1] < menu_vrt_upper_limit)
+    {
+        cursor_position[1]+=2;
+    }
+    else if (bn::keypad::up_pressed() && cursor_position[1] > menu_vrt_lower_limit)
+    {
+        cursor_position[1]-=2;
+    }
+    if (bn::keypad::right_pressed() && cursor_position[0] < menu_hrz_upper_limit)
+    {
+        cursor_position[0]+=2;
+    }
+    else if (bn::keypad::left_pressed() && cursor_position[0] > menu_hrz_lower_limit)
+    {
+        cursor_position[0]-=2;
     }
 
-    int cellY2Screen(int y, int spr_delta)
+    if (bn::keypad::a_pressed())
     {
-        return (y * 8) - (32 * 4) + spr_delta;
-    }
-
-    bn::array<bool, 144> const& menu(bn::sprite_text_generator* stg)
-    {
-        bn::array<int, 2> cursor_position;
-        cursor_position[0] = 15;
-        cursor_position[1] = 13;
-        bn::bg_palette_item common_palette(bn::regular_bg_items::square.palette_item());
-
-            bn::fixed bg_x = 0;
-            bn::fixed bg_y = 0;
-            int cols = 32;
-            int rows = 32;
-
-        bool slot1_occupied = tool::validateSRAMData(0x00);
-        bool slot2_occupied = tool::validateSRAMData(0x90);
-        bool slot3_occupied = tool::validateSRAMData(0x120);
-
-        int screen_cells = cols*rows;
-        int menu_hrz_lower_limit = 15;
-        int menu_hrz_upper_limit = 19;
-        int menu_vrt_lower_limit = 13;
-        int menu_vrt_upper_limit = menu_hrz_upper_limit;
-
-        bn::regular_bg_map_cell cells[screen_cells];
-        bn::regular_bg_map_item map_item(cells[0], bn::size(cols, rows));
-
-        bn::regular_bg_item item(bn::regular_bg_items::square.tiles_item(), common_palette,
-                                 map_item);
-
-        bn::regular_bg_ptr grid_bg = item.create_bg(0, 0);
-        bn::regular_bg_map_ptr map = grid_bg.map();
-
-        bn::memory::clear(screen_cells, cells[0]);
-        //GameState state;
-        //state.PaperSheetPattern_Regular();
-
-        int8_t cart_sram_data = 255;
-        bn::sram::read(cart_sram_data);
-
-        if (slot1_occupied || slot2_occupied || slot3_occupied)
+        switch(cursor_position[1])
         {
-            menu_vrt_upper_limit += 2;
-        }
-
-        for (int i = 0; i < cols; ++i)
-            {
-                for (int j = 0; j < rows; ++j)
+            case 13:
+                switch(cursor_position[0])
                 {
-                    bn::regular_bg_map_cell_info cell_info(cells[map_item.cell_index(j, i)]);
-                    bn::regular_bg_map_cell& current_cell = cells[map_item.cell_index(j, i)];
-
-                    int cell_number = 1;
-                    if (i < 7 || i > 24)
-                        cell_number = 32;
-                    if (i == 7)
-                    {
-                        cell_number = j & 1 ? 25 : 24;
-                    }
-                    if (i == 22)
-                        cell_number = 23;
-                    if (i >= menu_vrt_lower_limit && i <= menu_vrt_upper_limit && i & 1)
-                    {
-                        if (j == 15)
-                            cell_number = 4;
-                        if (j == 17)
-                            cell_number = 5;
-                        if (j == 19)
-                            cell_number = 6;
-                    }
-                    cell_info.set_tile_index(cell_number);
-                    current_cell = cell_info.cell();
-                }
-            }
-        map.reload_cells_ref();
-
-        text _text(stg);
-
-        _text.outputSingleLine(cellX2Screen(9, 4), cellY2Screen(10, 4), "Choose a puzzle");
-
-        _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(13, 4), "things");
-        _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(15, 4), "nature");
-        _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(17, 4), "kanji");
-        _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(19, 4), "portraits");
-
-        if (slot1_occupied || slot2_occupied || slot3_occupied)
-        {
-            _text.outputSingleLine(cellX2Screen(6, 4), cellY2Screen(21, 4), "custom");
-        }
-
-        while(true)
-        {
-            if (bn::keypad::down_pressed())
-            {
-                if (cursor_position[1] < menu_vrt_upper_limit)
-                {
-                    cursor_position[1]+=2;
-                }
-            }
-            else if (bn::keypad::up_pressed())
-            {
-                if (cursor_position[1] > menu_vrt_lower_limit)
-                {
-                    cursor_position[1]-=2;
-                }
-            }
-            if (bn::keypad::right_pressed())
-            {
-                if (cursor_position[0] < menu_hrz_upper_limit )
-                {
-                    cursor_position[0]+=2;
-                }
-            }
-            else if (bn::keypad::left_pressed())
-            {
-                if (cursor_position[0] > menu_hrz_lower_limit )
-                {
-                    cursor_position[0]-=2;
-                }
-            }
-            if (bn::keypad::a_pressed())
-            {
-                switch(cursor_position[1])
-                {
-                case 13:
-                    switch(cursor_position[0])
-                    {
                     case 15:
-                        return puzzle::Things_Gameboy;
+                        current_puzzle = puzzle::Things_Gameboy;
+                        return 4;
                     case 17:
-                        return puzzle::Things_Giftbox;
+                        current_puzzle = puzzle::Things_Giftbox;
+                        return 4;
                     case 19:
-                        return puzzle::Things_Notepad;
+                        current_puzzle = puzzle::Things_Notepad;
+                        return 4;
                     default:
                         break;
-                    }
-                    break;
-                case 15:
-                    switch(cursor_position[0])
-                    {
+                }
+                break;
+            case 15:
+                switch(cursor_position[0])
+                {
                     case 15:
-                        return puzzle::Nature_4LClover;
+                        current_puzzle = puzzle::Nature_4LClover;
+                        return 4;
                     case 17:
-                        return puzzle::Nature_Flower;
+                        current_puzzle = puzzle::Nature_Flower;
+                        return 4;
                     case 19:
-                        return puzzle::Nature_Lagomorph;
+                        current_puzzle = puzzle::Nature_Lagomorph;
+                        return 4;
                     default:
                         break;
-                    }
-                    break;
-                case 17:
-                    switch(cursor_position[0])
-                    {
+                }
+                break;
+            case 17:
+                switch(cursor_position[0])
+                {
                     case 15:
-                        return puzzle::Kanji_Cat;
+                        current_puzzle = puzzle::Kanji_Cat;
+                        return 4;
                     case 17:
-                        return puzzle::Kanji_Congrats;
+                        current_puzzle = puzzle::Kanji_Congrats;
+                        return 4;
                     case 19:
-                        return puzzle::Kanji_Flower;
+                        current_puzzle = puzzle::Kanji_Flower;
+                        return 4;
                     default:
                         break;
-                    }
-                    break;
-                case 19:
-                    switch(cursor_position[0])
-                    {
+                }
+                break;
+            case 19:
+                switch(cursor_position[0])
+                {
                     case 15:
-                        return puzzle::Portrait_Nyra;
+                        current_puzzle = puzzle::Portrait_Nyra;
+                        return 4;
                     case 17:
-                        return puzzle::Portrait_Tooru;
+                        current_puzzle = puzzle::Portrait_Tooru;
+                        return 4;
                     case 19:
-                        return puzzle::Portrait_Yuuji;
+                        current_puzzle = puzzle::Portrait_Yuuji;
+                        return 4;
                     default:
                         break;
-                    }
-                    break;
-                case 21:
-                    switch(cursor_position[0])
-                    {
+                }
+                break;
+            case 21:
+                switch(cursor_position[0])
+                {
                     case 15:
-                        if (slot1_occupied)
+                        if (slots_occupied[0])
                         {
                             bn::sram::read_offset(puzzle::Custom, 0);
-                            return puzzle::Custom;
+                            current_puzzle = puzzle::Custom;
+                            return 4;
                         }
                     case 17:
-                        if (slot2_occupied)
+                        if (slots_occupied[1])
                         {
                             bn::sram::read_offset(puzzle::Custom, 0x90);
-                            return puzzle::Custom;
+                            current_puzzle = puzzle::Custom;
+                            return 4;
                         }
                     case 19:
-                        if (slot3_occupied)
+                        if (slots_occupied[2])
                         {
-                            bn::sram::read_offset(puzzle::Custom, 0x90);
-                            return puzzle::Custom;
+                            bn::sram::read_offset(puzzle::Custom, 0x120);
+                            current_puzzle = puzzle::Custom;
+                            return 4;
                         }
                     default:
                         break;
-                    }
-                    break;
-                default:
-                    break;
                 }
+                break;
+            default:
+                break;
             }
-            else if (bn::keypad::b_pressed())
-            {
-
-            }
-
-            bn::sprite_ptr cursor_sprite = bn::sprite_items::cursor_circle.create_sprite(cellX2Screen(cursor_position[0], 8), cellY2Screen(cursor_position[1], 8));
-            bn::core::update();
-        }
     }
+    else if (bn::keypad::b_pressed())
+    {
+        return 0;
+    }
+    return -1;
 }
