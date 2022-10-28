@@ -24,8 +24,6 @@ class GameState
 
 public:
 
-    bn::array<bool, 144> &current_puzzle;
-
     GameState();
     GameState(int, int);
     GameState(int, int, bn::bg_palette_item const&);
@@ -48,7 +46,7 @@ public:
     void PaperSheetPattern_Scrollable();
     void PaperSheetPattern_PuzzleSelection(int&, int&);
 
-    virtual int updateState() = 0;
+    //virtual int updateState() = 0;
 
     ~GameState();
 };

@@ -40,7 +40,7 @@ bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
         {
             new_index = 3;
             grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = true;
-            bn::sound_items::pen_color.play(0.9);
+            bn::sound_items::pen_color.play(1);
         }
         else
         {
@@ -58,7 +58,7 @@ bool PicrossGrid::processKeyInput(bn::regular_bg_map_cell& cell)
         {
             new_index = 2;
             grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = false;
-            bn::sound_items::pen_cross.play(0.9);
+            bn::sound_items::pen_cross.play(1);
         }
         info.set_tile_index(new_index);
         cell = info.cell();
@@ -76,9 +76,9 @@ bool PicrossGrid::processKeyContinuousInput(bn::regular_bg_map_cell& cell)
         if (current_index == 1)
         {
             grid[cursor_position[0]-screen_cell_lower_limit+12*(cursor_position[1]-screen_cell_lower_limit)] = true;
-            bn::sound_items::pen_color.play(0.9);
             info.set_tile_index(3);
             cell = info.cell();
+            bn::sound_items::pen_color.play(1);
         }
         return true;
     }
@@ -88,8 +88,8 @@ bool PicrossGrid::processKeyContinuousInput(bn::regular_bg_map_cell& cell)
         if (current_index == 1)
         {
             info.set_tile_index(2);
-            bn::sound_items::pen_cross.play(0.9);
             cell = info.cell();
+            bn::sound_items::pen_cross.play(1);
         }
         return true;
     }

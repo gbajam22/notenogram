@@ -2,6 +2,7 @@
 #define STATE_FREE_PLAY_MENU_H
 
 #include "bn_core.h"
+#include "bn_sprite_animate_actions.h"
 #include "bn_bg_palette_actions.h"
 #include "bn_bg_palette_actions.h"
 //#include "bn_music_items.h"
@@ -23,8 +24,8 @@ class PuzzleSelect : public GameState
 
     bn::array<int, 2> cursor_position = {15, 13};
     bn::optional<bn::sprite_ptr> cursor_sprite, scribble_left;
-    /*bn::sprite_animate_action<2> two_frame_anim = bn::create_sprite_animate_action_forever
-                        (*scribble_left, 11, bn::sprite_items::scribble_star.tiles_item(), 0,1);*/
+    bn::sprite_animate_action<2> two_frame_anim = bn::create_sprite_animate_action_forever
+                        (*scribble_left, 11, bn::sprite_items::scribble_star.tiles_item(), 0,1);
     bn::array<bool, 3> slots_occupied = {0};
 
     int menu_hrz_lower_limit, menu_hrz_upper_limit,
@@ -32,6 +33,8 @@ class PuzzleSelect : public GameState
 
     text _text;
 
+    bool empty_selection = false;
+    int frame_counter = 0;
     //bn::array<bool, 144> const* selected_puzzle;
 
 public:
@@ -39,7 +42,8 @@ public:
     //PuzzleSelect(int, int, bn::sprite_text_generator*);
     //PuzzleSelect(int, int, bn::bg_palette_item const&, bn::sprite_text_generator*);
     void showMenu();
-    int updateState() override;
+    bn::array<bool, 144> const& getSelectedPuzzle();
+    int updateState();
 };
 
 #endif // STATE_FREE_PLAY_MENU_H

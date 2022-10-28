@@ -4,9 +4,9 @@ MainMenu::MainMenu(bn::sprite_text_generator* stg) : GameState(), bg_pattern(bui
     _text(stg), displaying_logo1(true), displaying_logo2(false), displaying_credits(false), returning_from_state(false),
     bg_foreground(bn::regular_bg_items::title.create_bg(-22, 15)),
     cursor_sprite(buildSprite(bn::sprite_items::cursor_pen,0,0)),
-    logo(buildSprite(bn::sprite_items::logo_butano,0,0))
+    logo(buildSprite(bn::sprite_items::logo,0,0))
 {
-    //bg_foreground.set_visible(false);
+    bg_foreground.set_visible(false);
     //cursor_sprite->set_visible(false);
     initScrollingBG();
     //bg_pattern.set_blending_enabled(false);
@@ -15,7 +15,7 @@ MainMenu::MainMenu(bn::sprite_text_generator* stg) : GameState(), bg_pattern(bui
     //bn::blending::set_transparency_alpha(logo_visibility);
     //menu();
     cursor_sprite->set_horizontal_flip(true);
-    logo->set_visible(true);
+    //logo->set_visible(true);
     displayMainMenu();
 }
 

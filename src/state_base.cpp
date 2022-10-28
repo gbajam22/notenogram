@@ -2,7 +2,7 @@
 
 GameState::GameState() :
     //cur_x(0), cur_y(0),
-    bg_x(0), bg_y(0), current_puzzle(puzzle::Custom),
+    bg_x(0), bg_y(0), //current_puzzle(puzzle::Custom),
     //common_palette(bn::regular_bg_items::square.palette_item()),
     //common_sprite_palette(bn::sprite_items::logo.palette_item()),
     item(cells[0], bn::size(columns, rows))
@@ -11,7 +11,7 @@ GameState::GameState() :
 }
 
 GameState::GameState(int x, int y) :
-    bg_x(x), bg_y(x), current_puzzle(puzzle::Custom),//cur_x(x), cur_y(y),
+    bg_x(x), bg_y(x), //current_puzzle(puzzle::Custom),cur_x(x), cur_y(y),
     //common_palette(bn::regular_bg_items::square.palette_item()),
     //common_sprite_palette(bn::sprite_items::logo.palette_item()),
     item(cells[0], bn::size(columns, rows))

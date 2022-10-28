@@ -91,7 +91,6 @@ void text::breakIntoMultipleLines(bn::string_view const &lines)
         line_starters.push_back(start);
         line_breakers.push_back(substr_length);
         start += substr_length;
-        //outputSingleLine(8 * i, lines.substr(start, substr_length));
     }
 }
 

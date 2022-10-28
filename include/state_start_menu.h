@@ -51,7 +51,7 @@ public:
     void displayMainMenu();
     void displayCredits();
     int menu();
-    int updateState() override;
+    int updateState();
 };
 
 #endif // STATE_START_H
