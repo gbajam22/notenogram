@@ -18,11 +18,13 @@ namespace loop
         while (option != 0)
         {
             option = _puzzle_select.updateState();
+            bn::core::update();
             if(option == 4)
             {
+                _puzzle_select.toggleStateVisibility(false);
                 solve_puzzle(_puzzle_select.getSelectedPuzzle());
+                _puzzle_select.toggleStateVisibility(true);
             }
-            bn::core::update();
         }
     }
 
@@ -40,19 +42,25 @@ namespace loop
         MainMenu _menu(_t);
         while (1)
         {
-            switch(_menu.updateState())
+            if (_menu.returning_from_state)
             {
-            case 1:
-                select_puzzle(_t);
-                break;
-            case 2:
-                make_puzzle(_t);
-                break;
-            default:
-                break;
-
+                _menu.toggleStateVisibility(true);
+                _menu.returning_from_state = false;
             }
             bn::core::update();
+            switch(_menu.updateState())
+                {
+                case 1:
+                    _menu.returning_from_state = true;
+                    select_puzzle(_t);
+                    break;
+                case 2:
+                    _menu.returning_from_state = true;
+                    make_puzzle(_t);
+                    break;
+                default:
+                    break;
+                }
         }
     }
 }

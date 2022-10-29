@@ -54,6 +54,17 @@ void MainGame::redrawHints()
     }
 }
 
+void MainGame::drawCreatorModeInstructions()
+{
+    _text.clear();
+    _text.outputSingleLine(-104, -76, "use L and R");
+    _text.outputSingleLine(-104, -68, "to switch");
+    _text.outputSingleLine(-104, -60, "puzzle slots,");
+    _text.outputSingleLine(-104, -52, "START to");
+    _text.outputSingleLine(-104, -44, "save puzzle");
+    _text.outputSingleLine(-104, -36, "using slot");
+}
+
 void MainGame::createPuzzle()
     {
         resetMap();
@@ -64,8 +75,8 @@ void MainGame::createPuzzle()
         setCellTile(11, 11, 4);
         grid.create();
         cursor_sprite->set_position(tool::cellX2Screen(grid.getCursorX(),8), tool::cellY2Screen(grid.getCursorY(),8));
-        _text.outputSingleLine(-60, -60, "press start to save!");
-        _text.outputSingleLine(-60, -50, "selected slot");
+
+        drawCreatorModeInstructions();
     }
 
 void MainGame::solvePuzzle(bn::array<bool, 144> const &_puzzle)
@@ -172,6 +183,13 @@ int MainGame::updateState()
     {
         //bn::sram::write_offset(grid.getCurrentGrid(), offset*144);
         tool::boolArray2UInt(grid.getCurrentGrid(), offset*18);
+        if (!puzzle_solved)
+        {
+            _text.clear();
+            _text.outputSingleLine(-104, -60, "puzzle saved!");
+            _text.outputSingleLine(-104, -36, "using slot");
+            puzzle_solved = true;
+        }
     }
     if (bn::keypad::l_pressed())
     {
@@ -189,6 +207,22 @@ int MainGame::updateState()
     {
         return 0;
     }
+
+    if (puzzle_solved && ++frame_counter >= 100)
+    {
+        frame_counter = 0;
+        puzzle_solved = false;
+        drawCreatorModeInstructions();
+    }
     cursor_sprite->set_position(tool::cellX2Screen(grid.getCursorX(), 8), tool::cellY2Screen(grid.getCursorY(),8));
     return -1;
+}
+
+void MainGame::toggleStateVisibility(bool show)
+{
+    bg.set_visible(show);
+    if (!grid.creator_mode) notono_window->set_visible(show);
+    cursor_sprite->set_visible(show);
+    if (!show) _text.clear();
+    //else displayMainMenu();
 }

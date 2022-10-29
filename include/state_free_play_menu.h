@@ -1,11 +1,8 @@
 #ifndef STATE_FREE_PLAY_MENU_H
 #define STATE_FREE_PLAY_MENU_H
 
-#include "bn_core.h"
 #include "bn_sprite_animate_actions.h"
 #include "bn_bg_palette_actions.h"
-#include "bn_bg_palette_actions.h"
-//#include "bn_music_items.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
 
@@ -35,15 +32,17 @@ class PuzzleSelect : public GameState
 
     bool empty_selection = false;
     int frame_counter = 0;
-    //bn::array<bool, 144> const* selected_puzzle;
 
 public:
     PuzzleSelect(bn::sprite_text_generator*);
-    //PuzzleSelect(int, int, bn::sprite_text_generator*);
-    //PuzzleSelect(int, int, bn::bg_palette_item const&, bn::sprite_text_generator*);
     void showMenu();
+    void showMenuText();
+
     bn::array<bool, 144> const& getSelectedPuzzle();
+
     int updateState();
+
+    void toggleStateVisibility(bool) override;
 };
 
 #endif // STATE_FREE_PLAY_MENU_H

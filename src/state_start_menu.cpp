@@ -1,52 +1,35 @@
 #include "state_start_menu.h"
 
 MainMenu::MainMenu(bn::sprite_text_generator* stg) : GameState(), bg_pattern(buildBG()), map(bg_pattern.map()),
-    _text(stg), displaying_logo1(true), displaying_logo2(false), displaying_credits(false), returning_from_state(false),
+    _text(stg), displaying_logo1(true), displaying_logo2(false),displaying_credits(false), returning_from_state(false),
     bg_foreground(bn::regular_bg_items::title.create_bg(-22, 15)),
     cursor_sprite(buildSprite(bn::sprite_items::cursor_pen,0,0)),
-    logo(buildSprite(bn::sprite_items::logo,0,0))
+    logo(buildSprite(bn::sprite_items::logo,0,0)), logo_appear_action(60, 1), logo_disappear_action(60, 0)
 {
     bg_foreground.set_visible(false);
-    //cursor_sprite->set_visible(false);
-    initScrollingBG();
-    //bg_pattern.set_blending_enabled(false);
-    //bg_foreground.set_blending_enabled(false);
-    //logo->set_blending_enabled(true);
-    //bn::blending::set_transparency_alpha(logo_visibility);
-    //menu();
     cursor_sprite->set_horizontal_flip(true);
-    //logo->set_visible(true);
-    displayMainMenu();
+    cursor_sprite->set_vertical_flip(true);
+    cursor_sprite->set_visible(false);
+    initScrollingBG();
+    bg_pattern.set_blending_enabled(false);
+    bg_foreground.set_blending_enabled(false);
+    logo->set_blending_enabled(true);
+    bn::blending::set_transparency_alpha(0);
 }
 
-void MainMenu::displaySplashLogos()
+void MainMenu::displayIntro()
 {
-    if (displaying_logo1 || displaying_logo2)
+    if (refresh_counter < 60)
     {
-        bn::blending::set_transparency_alpha(logo_visibility);
-        ++refresh_counter;
-        if (logo_visibility == 1 && refresh_counter == 100)
-        {
-            logo_visibility = logo_visibility > 1 ? 1 : logo_visibility + 0.05;
-        }
-        if (logo_visibility < 1)
-        {
-            if (logo_visibility == 0 && refresh_counter > 100)
-            {
-                displaying_logo2 = displaying_logo1;
-                displaying_logo1 = false;
-                refresh_counter = 0;
-            }
-            logo_visibility = logo_visibility < 0 ? 0 : logo_visibility - 0.05;
-        }
+        logo_appear_action.update();
     }
-    if (!displaying_logo1 && displaying_logo2)
+    else if (refresh_counter > 160 && refresh_counter < 220)
     {
-        logo = buildSprite(bn::sprite_items::logo_butano,0,0);
+        logo_disappear_action.update();
     }
-    if (!displaying_logo1 && !displaying_logo2)
+    else
     {
-        displayMainMenu();
+        bn::blending::set_transparency_alpha(1);
     }
 }
 
@@ -61,7 +44,6 @@ void MainMenu::displayMainMenu()
 {
     bg_foreground.set_visible(true);
     cursor_sprite->set_visible(true);
-    logo->set_visible(false);
 
     _text.outputSingleLine(42, -60, "notenogram");
     _text.outputSingleLine(57, 20, "play");
@@ -88,7 +70,7 @@ void MainMenu::displayCredits()
 
 int MainMenu::updateState()
 {
-    //if (!displaying_logo1 && !displaying_logo2)
+    if (!displaying_logo1 && !displaying_logo2)
     {
         if (bn::keypad::down_pressed())
         {
@@ -103,18 +85,45 @@ int MainMenu::updateState()
             switch(cursor_position[1])
             {
                 case 20:
+                toggleStateVisibility(false);
                     return 1;
                     break;
                 case 36:
+                toggleStateVisibility(false);
                     return 2;
                     break;
                 case 42:
+                toggleStateVisibility(false);
                     return 3;
                     break;
                 default: break;
             }
         }
         cursor_sprite->set_position(cursor_position[0], cursor_position[1]);
+    }
+    else
+    {
+        if (refresh_counter < 220)
+        displayIntro();
+        if (++refresh_counter > 220)
+        {
+            refresh_counter = 0;
+            if (!displaying_logo1 && displaying_logo2)
+            {
+                logo->set_visible(false);
+                displaying_logo2 = false;
+                bn::sound_items::nootonoguramu.play();
+                displayMainMenu();
+            }
+            else
+            {
+                logo = buildSprite(bn::sprite_items::logo_butano,0,0);
+                logo->set_blending_enabled(true);
+                bn::blending::set_transparency_alpha(0);
+                displaying_logo1 = false;
+                displaying_logo2 = true;
+            }
+        }
     }
     bg_pattern.set_x(bg_pattern.x()+0.25);
     bg_pattern.set_y(bg_pattern.y()+0.25);
@@ -123,14 +132,11 @@ int MainMenu::updateState()
     return -1;
 }
 
-int MainMenu::menu()
+void MainMenu::toggleStateVisibility(bool show)
 {
-    if (!returning_from_state)
-    {
-        displaySplashLogos();
-    }
-    else
-    {
-        displayMainMenu();
-    };
+    bg_pattern.set_visible(show);
+    bg_foreground.set_visible(show);
+    cursor_sprite->set_visible(show);
+    if (!show) _text.clear();
+    else displayMainMenu();
 }

@@ -47,6 +47,7 @@ public:
     void PaperSheetPattern_PuzzleSelection(int&, int&);
 
     //virtual int updateState() = 0;
+    virtual void toggleStateVisibility(bool) = 0;
 
     ~GameState();
 };

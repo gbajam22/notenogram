@@ -27,7 +27,9 @@ class MainMenu : public GameState
 
     text _text;
 
-    bool displaying_logo1, displaying_logo2, displaying_credits, returning_from_state;
+    bn::blending_transparency_alpha_loop_action logo_appear_action, logo_disappear_action;
+
+    bool displaying_logo1, displaying_logo2;
     int logo_visibility = 0;
     int refresh_counter = 0;
     int foreground_x = -200;
@@ -35,7 +37,7 @@ class MainMenu : public GameState
     bn::string_view credits[5] =
     {
         "Press A to skip credit text, START to exit to main menu! Also, check out CREDITS.md for details!"
-        "Programming, puzzles, art assets, voiceover, sounds -- kva64 (code distributed under zlib license, art and sounds - CC-BY-4.0)",
+        "Programming, inbuilt puzzles, art assets, sounds -- kva64 (code distributed under zlib license, art and sounds - CC-BY-4.0)",
         "Engine -- Butano by GValiente (zlib license)",
         "Music -- congusbongus (CC0)",
         "Original GBA Jam 2022 logo design -- "
@@ -45,12 +47,15 @@ class MainMenu : public GameState
     int symbol_ptr = 0;
 
 public:
+    bool displaying_credits, returning_from_state;
+
     MainMenu(bn::sprite_text_generator*);
     void initScrollingBG();
-    void displaySplashLogos();
+    void displayIntro();
     void displayMainMenu();
     void displayCredits();
-    int menu();
+
+    void toggleStateVisibility(bool) override;
     int updateState();
 };
 

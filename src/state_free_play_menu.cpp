@@ -23,6 +23,14 @@ void PuzzleSelect::showMenu()
     PaperSheetPattern_PuzzleSelection(menu_vrt_lower_limit, menu_vrt_upper_limit);
     refreshScreen(map);
 
+    showMenuText();
+
+}
+
+void PuzzleSelect::showMenuText()
+{
+    _text.clear();
+
     _text.outputSingleLine(tool::cellX2Screen(9, 4), tool::cellY2Screen(10, 4), "Choose a puzzle");
 
     _text.outputSingleLine(tool::cellX2Screen(6, 4), tool::cellY2Screen(13, 4), "things");
@@ -39,6 +47,7 @@ void PuzzleSelect::showMenu()
 
 bn::array<bool, 144> const& PuzzleSelect::getSelectedPuzzle()
 {
+    bn::sound_items::ganbatte_ne.play(1);
     switch(cursor_position[1])
     {
         case 13:
@@ -103,7 +112,6 @@ bn::array<bool, 144> const& PuzzleSelect::getSelectedPuzzle()
                         //bn::sram::read_offset(puzzle::Custom, 0);
                         return puzzle::Custom;
                     }
-                    else empty_selection = true;
                 case 17:
                     if (slots_occupied[1])
                     {
@@ -111,7 +119,6 @@ bn::array<bool, 144> const& PuzzleSelect::getSelectedPuzzle()
                         //bn::sram::read_offset(puzzle::Custom, 0x90);
                         return puzzle::Custom;
                     }
-                    else empty_selection = true;
                 case 19:
                     if (slots_occupied[2])
                     {
@@ -119,7 +126,6 @@ bn::array<bool, 144> const& PuzzleSelect::getSelectedPuzzle()
                         //bn::sram::read_offset(puzzle::Custom, 0x120);
                         return puzzle::Custom;
                     }
-                    else empty_selection = true;
                 default:
                     break;
             }
@@ -150,7 +156,15 @@ int PuzzleSelect::updateState()
 
     if (bn::keypad::a_pressed())
     {
-        bn::sound_items::ganbatte_ne.play(1);
+        if (cursor_position[1] == 21 &&
+                (cursor_position[0] == 15 && !slots_occupied[0] ||
+                cursor_position[0] == 16 && !slots_occupied[1] ||
+                cursor_position[0] == 17 && !slots_occupied[2]))
+        {
+            _text.outputSingleLine(tool::cellX2Screen(12, 4), tool::cellY2Screen(23, 4), "no puzzle found!");
+            empty_selection = true;
+            return -1;
+        }
         return 4;
     }
     else if (bn::keypad::b_pressed())
@@ -160,5 +174,21 @@ int PuzzleSelect::updateState()
     two_frame_anim.update();
     cursor_sprite->set_position(tool::cellX2Screen(cursor_position[0], 8), tool::cellY2Screen(cursor_position[1],8));
 
+    if (empty_selection && ++frame_counter >= 100)
+    {
+        empty_selection = false;
+        frame_counter = 0;
+        showMenuText();
+    }
+
     return -1;
+}
+
+void PuzzleSelect::toggleStateVisibility(bool show)
+{
+    bg.set_visible(show);
+    cursor_sprite->set_visible(show);
+    scribble_left->set_visible(show);
+    if (!show) _text.clear();
+    else showMenuText();
 }
