@@ -40,14 +40,20 @@ namespace tool
 
     bool validateSRAM_UInt_Data(int offset)
     {
-        uint8_t sram_data = 0;
-        int data_sum = 0;
-        for (int i = offset; i < offset + 18; ++i)
+        bn::array<int8_t, 18> data_check;
+        bn::sram::read_offset(data_check, offset);
+        int sum_of_zeroes = 0;
+        int sum_of_ffs = 0;
+        for (int i = 0; i < 18; ++i)
         {
-            bn::sram::read_offset(sram_data, i);
-            data_sum += sram_data;
+            //BN_LOG("byte offset: ", i);
+            //BN_LOG("int8 data received: ", data_check[i);
+            if (data_check[i] == 0) ++sum_of_zeroes;
+            else if (data_check[i] == -1) ++sum_of_ffs;
+            ++offset;
         }
-        return (data_sum > 0 && data_sum < 255*18) ? true : false;
+        return (sum_of_zeroes < 18 && sum_of_ffs < 18) ? true : false;
+        //return true;
     }
 
     void boolArray2UInt(bn::array<bool, 144> const &array_of_bools, int offset)

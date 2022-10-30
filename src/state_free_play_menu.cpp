@@ -13,8 +13,13 @@ PuzzleSelect::PuzzleSelect(bn::sprite_text_generator* stg) :
     //bn::blending::set_fade_alpha(1);
 
     slots_occupied[0] = tool::validateSRAM_UInt_Data(0);
-    slots_occupied[1] = tool::validateSRAM_UInt_Data(16);
-    slots_occupied[2] = tool::validateSRAM_UInt_Data(32);
+    BN_LOG("slot 0 data valid: ", slots_occupied[0]);
+
+    slots_occupied[1] = tool::validateSRAM_UInt_Data(18);
+    BN_LOG("slot 1 data valid: ", slots_occupied[1]);
+
+    slots_occupied[2] = tool::validateSRAM_UInt_Data(36);
+    BN_LOG("slot 2 data valid: ", slots_occupied[2]);
     showMenu();
 }
 
@@ -112,21 +117,21 @@ bn::array<bool, 144> const& PuzzleSelect::getSelectedPuzzle()
             switch(cursor_position[0])
             {
                 case 15:
-                    if (slots_occupied[0])
+                    if (slots_occupied[0] == true)
                     {
                         tool::UInt2BoolArray(puzzle::Custom, 0);
                         //bn::sram::read_offset(puzzle::Custom, 0);
                         return puzzle::Custom;
                     }
                 case 17:
-                    if (slots_occupied[1])
+                    if (slots_occupied[1] == true)
                     {
                         tool::UInt2BoolArray(puzzle::Custom, 18);
                         //bn::sram::read_offset(puzzle::Custom, 0x90);
                         return puzzle::Custom;
                     }
                 case 19:
-                    if (slots_occupied[2])
+                    if (slots_occupied[2] == true)
                     {
                         tool::UInt2BoolArray(puzzle::Custom, 36);
                         //bn::sram::read_offset(puzzle::Custom, 0x120);
@@ -163,9 +168,9 @@ int PuzzleSelect::updateState()
     if (bn::keypad::a_pressed())
     {
         if (cursor_position[1] == 21 &&
-                (cursor_position[0] == 15 && !slots_occupied[0] ||
-                cursor_position[0] == 16 && !slots_occupied[1] ||
-                cursor_position[0] == 17 && !slots_occupied[2]))
+                ((cursor_position[0] == 15 && !slots_occupied[0]) ||
+                (cursor_position[0] == 17 && !slots_occupied[1]) ||
+                (cursor_position[0] == 19 && !slots_occupied[2])))
         {
             _text.outputSingleLine(tool::cellX2Screen(11, 4), tool::cellY2Screen(23, 4), "no puzzle found!");
             empty_selection = true;
