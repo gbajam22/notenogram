@@ -19,10 +19,10 @@ Chill analog-styled Gameboy Advance picross/nonogram/hanjie/griddler game made w
 * **Start (in creator mode)** - write current puzzle to SRAM
 * **L or R button (in creator mode)** - switch custom puzzle slots in SRAM to write to (only three slots available for now, writing to a full slot will overwrite its contents)
 
-##Issues
-The biggest issue for now is making the creator mode work properly on VBA-M since it will write to SRAM only on top of an already existing (and legit) save file and only after closing the emulator. That's it.
+## Issues
+The biggest issue for now is making the creator mode work properly on VBA-M since it will write to SRAM only on top of an already existing save file and only after closing the emulator.
 
-##TODO
+## TODO
 * Completely replace boolean arrays with unsigned integers for quicker reads, writes and condition checks
 * Figure out how to design the main game state interface class to avoid any chaos in overridden methods and simplify game loop coding (and reduce used backgrounds)
 * Story mode - add scenarios, character sprites, timer for puzzle solving and variables for writing various puzzle solving stats of the player
