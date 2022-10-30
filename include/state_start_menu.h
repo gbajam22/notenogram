@@ -35,9 +35,9 @@ class MainMenu : public GameState
         "Press A to skip credit text, B to exit to main menu!",
         "Also, visit notabug.org/lv10groove/notenogram for details and source code/assets!",
         "Programming, inbuilt puzzles, art assets and sounds by kva64 (kva64.itch.io)",
-        "Butano engine by GValiente (gvaliente.itch.io, github.com/GValiente)",
-        "BGM by congus-bongus (soundcloud.com/congus-bongus, ModArchive ID 85757)",
-        "Original GBA Jam 2022 logo designs by GBA Jam 2022 hosts (details at github.com/gbajam22/gbajam22.github.io)",
+        "Butano engine by GValiente (github.com/GValiente)",
+        "BGM by congusbongus (soundcloud.com/congus-bongus, ModArchive ID 85757)",
+        "Original GBA Jam 2022 logo designs (found at gbajam22.github.io) by foopod (foopod.itch.io) and exelotl (exelo.tl)",
         "This text will now be displayed from the beginning..."
     };
 
