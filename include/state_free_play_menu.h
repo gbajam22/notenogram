@@ -5,6 +5,7 @@
 #include "bn_bg_palette_actions.h"
 #include "bn_keypad.h"
 #include "bn_string.h"
+#include "bn_blending_actions.h"
 
 #include "state_base.h"
 #include "picross_solutions.h"
@@ -43,6 +44,7 @@ public:
     int updateState();
 
     void toggleStateVisibility(bool) override;
+    void toggleFadeEffect() override;
 };
 
 #endif // STATE_FREE_PLAY_MENU_H

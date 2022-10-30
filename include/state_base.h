@@ -1,6 +1,7 @@
 #ifndef STATE_BASE_H
 #define STATE_BASE_H
 
+#include "bn_blending_fade_alpha.h"
 #include "bn_sprite_ptr.h"
 #include "bn_regular_bg_builder.h"
 #include "bn_sprite_builder.h"
@@ -48,6 +49,7 @@ public:
 
     //virtual int updateState() = 0;
     virtual void toggleStateVisibility(bool) = 0;
+    virtual void toggleFadeEffect() = 0;
 
     ~GameState();
 };

@@ -10,9 +10,9 @@
 
 #include "bn_sprite_text_generator.h"
 
-#define TEXT_X -111
-#define TEXT_Y 44
-#define MAX_WIDTH 31
+#define TEXT_X -108
+#define TEXT_Y -24
+#define MAX_WIDTH 34
 #define MAX_ROWS_8 4
 #define MAX_ROWS_16 2
 
@@ -22,7 +22,7 @@
 class text
 {
     bn::sprite_text_generator* text_gnrtr;
-    bn::vector<bn::sprite_ptr, 32> symbols;
+    bn::vector<bn::sprite_ptr, MAX_WIDTH> symbols;
     //this should store indexes for first and last symbols in every line of on-screen text
     //(retrieved once via outputMultipleLines for use in typewriter output)
     bn::vector<int, MAX_ROWS_8> line_starters;

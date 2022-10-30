@@ -14,7 +14,7 @@ text::text(bn::string_view const& script_line, bn::sprite_text_generator *_text_
 {
     line_counter = script_line.length() / MAX_WIDTH;
     //quick and dirty fix for the "disappearing last line" bug that the code above produces
-    if (line_counter == 0 || line_counter < 4) ++line_counter;
+    if (line_counter == 0 || line_counter < MAX_ROWS_8) ++line_counter;
 
     breakIntoMultipleLines(script_line);
     text_gnrtr = _text_gnrtr;

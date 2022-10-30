@@ -23,6 +23,8 @@ int main()
     bn::sprite_text_generator txt(font);
     bn::sprite_text_generator* text_ptr = &txt;
 
+    bn::bg_palettes::set_transparent_color(bn::color(3, 3, 3));
+
     bn::music_items::mustard_loop.play(0.5);
 
     loop::menu(text_ptr);

@@ -6,6 +6,12 @@ PuzzleSelect::PuzzleSelect(bn::sprite_text_generator* stg) :
     cursor_sprite(buildSprite(bn::sprite_items::cursor_circle, 0,0)),
     scribble_left(buildSprite(bn::sprite_items::scribble_star, -68, -40))
 {
+    bg.set_blending_enabled(true);
+    scribble_left->set_blending_enabled(true);
+    cursor_sprite->set_blending_enabled(true);
+
+    //bn::blending::set_fade_alpha(1);
+
     slots_occupied[0] = tool::validateSRAM_UInt_Data(0);
     slots_occupied[1] = tool::validateSRAM_UInt_Data(16);
     slots_occupied[2] = tool::validateSRAM_UInt_Data(32);
@@ -161,7 +167,7 @@ int PuzzleSelect::updateState()
                 cursor_position[0] == 16 && !slots_occupied[1] ||
                 cursor_position[0] == 17 && !slots_occupied[2]))
         {
-            _text.outputSingleLine(tool::cellX2Screen(12, 4), tool::cellY2Screen(23, 4), "no puzzle found!");
+            _text.outputSingleLine(tool::cellX2Screen(11, 4), tool::cellY2Screen(23, 4), "no puzzle found!");
             empty_selection = true;
             return -1;
         }
@@ -191,4 +197,9 @@ void PuzzleSelect::toggleStateVisibility(bool show)
     scribble_left->set_visible(show);
     if (!show) _text.clear();
     else showMenuText();
+}
+
+void PuzzleSelect::toggleFadeEffect()
+{
+
 }

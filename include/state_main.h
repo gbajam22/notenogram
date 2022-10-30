@@ -38,7 +38,8 @@ class MainGame : public GameState
     bool mistake_made, puzzle_solved;
     int frames2skip, offset, frame_counter;
 
-    static constexpr int max_slot_offset = 36;
+    bool fading_out = false;
+    int fade_counter = 0;
 
 public:
     MainGame(bn::sprite_text_generator *);
@@ -56,6 +57,7 @@ public:
     int updateState();
 
     void toggleStateVisibility(bool) override;
+    void toggleFadeEffect() override;
 };
 
 #endif // STATE_MAIN_H

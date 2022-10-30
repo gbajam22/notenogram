@@ -1,7 +1,7 @@
 #ifndef GAME_LOOP_H
 #define GAME_LOOP_H
 
-#include "bn_core.h"
+#include "fade_transparency_effects.h"
 #include "state_free_play_menu.h"
 #include "state_main.h"
 #include "state_start_menu.h"

@@ -3,13 +3,14 @@
 
 #include "bn_blending_actions.h"
 #include "bn_blending_fade_alpha.h"
+#include "bn_sprite_animate_actions.h"
 
 #include "state_base.h"
 #include "vn_text_output.h"
 
 #include "bn_regular_bg_items_title.h"
-//#include "bn_sprite_items_logo.h"
 #include "bn_sprite_items_logo_butano.h"
+#include "bn_sprite_items_scribble_star.h"
 #include "bn_sprite_items_cursor_pen.h"
 
 class MainMenu : public GameState
@@ -27,27 +28,24 @@ class MainMenu : public GameState
 
     text _text;
 
-    bn::blending_transparency_alpha_loop_action logo_appear_action, logo_disappear_action;
+    int foreground_x = 222;
 
-    bool displaying_logo1, displaying_logo2;
-    int logo_visibility = 0;
-    int refresh_counter = 0;
-    int foreground_x = -200;
-
-    bn::string_view credits[5] =
+    const bn::string_view credits[7] =
     {
-        "Press A to skip credit text, START to exit to main menu! Also, check out CREDITS.md for details!"
-        "Programming, inbuilt puzzles, art assets, sounds -- kva64 (code distributed under zlib license, art and sounds - CC-BY-4.0)",
-        "Engine -- Butano by GValiente (zlib license)",
-        "Music -- congusbongus (CC0)",
-        "Original GBA Jam 2022 logo design -- "
+        "Press A to skip credit text, B to exit to main menu!",
+        "Also, visit notabug.org/lv10groove/notenogram for details and source code/assets!",
+        "Programming, inbuilt puzzles, art assets and sounds by kva64 (kva64.itch.io)",
+        "Butano engine by GValiente (gvaliente.itch.io, github.com/GValiente)",
+        "BGM by congus-bongus (soundcloud.com/congus-bongus, ModArchive ID 85757)",
+        "Original GBA Jam 2022 logo designs by GBA Jam 2022 hosts (details at github.com/gbajam22/gbajam22.github.io)",
+        "This text will now be displayed from the beginning..."
     };
-    int script_ptr = 0;
-    int line_ptr = 0;
-    int symbol_ptr = 0;
+
+    int script_ptr,line_ptr,symbol_ptr;
 
 public:
-    bool displaying_credits, returning_from_state;
+    int refresh_counter = 0;
+    bool displaying_logo1, displaying_logo2, displaying_credits, returning_from_state;
 
     MainMenu(bn::sprite_text_generator*);
     void initScrollingBG();
@@ -55,8 +53,9 @@ public:
     void displayMainMenu();
     void displayCredits();
 
-    void toggleStateVisibility(bool) override;
     int updateState();
+    void toggleStateVisibility(bool) override;
+    void toggleFadeEffect() override;
 };
 
 #endif // STATE_START_H

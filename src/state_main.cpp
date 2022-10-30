@@ -12,6 +12,9 @@ MainGame::MainGame(bn::sprite_text_generator *_t) :
     notono_window->set_visible(false);
     stamp->set_visible(false);
 
+    bg.set_blending_enabled(true);
+    scribble_right->set_blending_enabled(true);
+
     createPuzzle();
 }
 
@@ -25,6 +28,12 @@ MainGame::MainGame(bn::array<bool, 144> const &puzzle_ref) :
     scribble_right(buildSprite(bn::sprite_items::scribble_heart, 96, -64))
 {
     stamp->set_visible(false);
+
+    bg.set_blending_enabled(true);
+    scribble_right->set_blending_enabled(true);
+    notono_window->set_blending_enabled(true);
+    stamp->set_blending_enabled(true);
+
     solvePuzzle(puzzle_ref);
 }
 
@@ -114,6 +123,7 @@ int MainGame::updateState(bn::array<bool, 144> const &current_puzzle)
         }
         if(grid.checkSolution(current_puzzle))
         {
+            cursor_sprite->set_visible(false);
             bn::sound_items::yoku_dekimasita.play(1);
             two_frame_anim[0] = bn::create_sprite_animate_action_forever
                     (*notono_window, 5, bn::sprite_items::notonochan.tiles_item(), 4,5);
@@ -208,13 +218,15 @@ int MainGame::updateState()
         return 0;
     }
 
-    if (puzzle_solved && ++frame_counter >= 100)
+    if (puzzle_solved && ++frame_counter >= 120)
     {
         frame_counter = 0;
         puzzle_solved = false;
         drawCreatorModeInstructions();
     }
+
     cursor_sprite->set_position(tool::cellX2Screen(grid.getCursorX(), 8), tool::cellY2Screen(grid.getCursorY(),8));
+
     return -1;
 }
 
@@ -224,5 +236,9 @@ void MainGame::toggleStateVisibility(bool show)
     if (!grid.creator_mode) notono_window->set_visible(show);
     cursor_sprite->set_visible(show);
     if (!show) _text.clear();
-    //else displayMainMenu();
+}
+
+void MainGame::toggleFadeEffect()
+{
+
 }
