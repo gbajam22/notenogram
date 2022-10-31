@@ -28,7 +28,7 @@ namespace story
         "Despite being somewhat startled, I instinctively replied with what first came to mind.",
         "\"Yeah, I'm kind of new to this picross solving business. And you..?\"",
         "-\"Same for me! I've been trying to solve picross puzzles from this magazine my grandma has recently subscribed to, but they're just so tough!",
-        "-\"They're really big and don't have any fully colored rows and I cannot believe there are people who can solve this kind of stuff.",
+        "-\"They're really big and don't have any fully colored rows and I cannot believe there are people who can solve xthis kind of stuff.",
         "-\"I'm glad I found this arcade machine, though, I've heard it's really good for those starting out. Plus it has a good extended tutorial mode!",
         "-\"I've been keeping a notebook where I note all the strategy tips the game gives during it, and it helped me a lot!",
         "-\"Not so much with the magazine puzzles, but I'll keep trying and gaining experience and someday I may just be able to solve them in a flash!",
