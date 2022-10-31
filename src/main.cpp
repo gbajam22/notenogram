@@ -12,6 +12,7 @@
 #define CREATE 2
 #define CREDITS 3
 #define PLAY 4
+#define STORY_MODE 5
 #define GO_BACK 0
 
 int main()

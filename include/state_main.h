@@ -20,6 +20,7 @@
 
 class MainGame : public GameState
 {
+protected:
     bn::regular_bg_ptr bg;
     bn::regular_bg_map_ptr map;
 

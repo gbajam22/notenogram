@@ -116,7 +116,7 @@ void text::redraw(bn::string_view const& script_line)
     line_breakers.clear();
 
     line_counter = script_line.length() / MAX_WIDTH;
-    if (line_counter == 0 || line_counter < 4) ++line_counter;
+    if (line_counter == 0 || line_counter < MAX_ROWS_8) ++line_counter;
 
     breakIntoMultipleLines(script_line);
 }

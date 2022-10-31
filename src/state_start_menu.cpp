@@ -35,6 +35,7 @@ void MainMenu::displayMainMenu()
     _text.outputSingleLine(57, 20, "play");
     _text.outputSingleLine(57, 36, "create");
     _text.outputSingleLine(57, 52, "credits");
+    _text.outputSingleLine(57, 68, "story mode");
 }
 
 void MainMenu::displayCredits()
@@ -92,6 +93,10 @@ int MainMenu::updateState()
                 displaying_credits = true;
                 toggleStateVisibility(false);
                     return 3;
+                    break;
+                case 68:
+                    toggleStateVisibility(false);
+                    return 5;
                     break;
                 default: break;
             }

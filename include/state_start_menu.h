@@ -20,7 +20,7 @@ class MainMenu : public GameState
     bn::regular_bg_map_ptr map;
 
     static constexpr int lower_bound = 20;
-    static constexpr int upper_bound = 52;
+    static constexpr int upper_bound = 68;
     static constexpr int x_coord = 54;
 
     bn::array<int, 2> cursor_position = {x_coord, lower_bound};

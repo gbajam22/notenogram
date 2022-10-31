@@ -105,6 +105,40 @@ void GameState::PaperSheetPattern_Regular()
         }
     }
 }
+
+void GameState::PaperSheetPattern_Holed()
+{
+    for (int i = 0; i < columns; ++i)
+    {
+        for (int j = 0; j < rows; ++j)
+        {
+            int cell_number = 1;
+            if (j < 1 || j > 30)
+                cell_number = 32;
+            if (j == 1)
+                cell_number = 21;
+            if (j == 2)
+            {
+                if (i % 3 == 0)
+                    cell_number = 19;
+                if ((i-1)%3 == 0)
+                    cell_number = 17;
+            }
+            if (j == 3)
+            {
+                if (i % 3 == 0)
+                    cell_number = 20;
+                if ((i-1)%3 == 0)
+                    cell_number = 16;
+            }
+            if (j == 25)
+                cell_number = 16;
+            if (j == 30)
+                cell_number = 22;
+            setCellTile(j, i, cell_number);
+        }
+    }
+}
 //title
 void GameState::PaperSheetPattern_Scrollable()
 {

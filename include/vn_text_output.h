@@ -11,9 +11,9 @@
 #include "bn_sprite_text_generator.h"
 
 #define TEXT_X -108
-#define TEXT_Y -24
+#define TEXT_Y -20
 #define MAX_WIDTH 34
-#define MAX_ROWS_8 4
+#define MAX_ROWS_8 10
 #define MAX_ROWS_16 2
 
 #define TEXT_NAME_X -111

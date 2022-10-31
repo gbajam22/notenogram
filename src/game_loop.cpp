@@ -11,6 +11,19 @@ namespace loop
         }
     }
 
+    int solve_arcade_puzzle()
+    {
+        ArcadeGame _story_picross;
+        bn::core::update();
+        int result = -1;
+        while (result == -1)
+        {
+            result = _story_picross.updateState();
+            bn::core::update();
+        }
+        return result;
+    }
+
     void select_puzzle(bn::sprite_text_generator* _t)
     {
         PuzzleSelect _puzzle_select(_t);
@@ -35,6 +48,25 @@ namespace loop
         bn::core::update();
         while (_actual_picross.updateState() != 0)
         {
+            bn::core::update();
+        }
+    }
+
+    void init_story_mode(bn::sprite_text_generator* _t)
+    {
+        StoryMode _story_mode(_t);
+        bn::core::update();
+        int option = 1;
+        while (option != 0)
+        {
+            _story_mode.setOptionalBG();
+            option = _story_mode.updateState();
+            if(option == 4)
+            {
+                _story_mode.toggleStateVisibility(false);
+                _story_mode.setTextOutputOptions(solve_arcade_puzzle());
+                _story_mode.toggleStateVisibility(true);
+            }
             bn::core::update();
         }
     }
@@ -67,6 +99,10 @@ namespace loop
                     break;
                 case 3:
                     _menu.displaying_credits = true;
+                    break;
+                case 5:
+                    _menu.returning_from_state = true;
+                    init_story_mode(_t);
                     break;
                 default:
                     break;

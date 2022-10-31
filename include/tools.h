@@ -4,6 +4,7 @@
 #include "bn_array.h"
 #include "bn_fixed.h"
 #include "bn_sram.h"
+#include "bn_log.h"
 
 namespace tool
 {
